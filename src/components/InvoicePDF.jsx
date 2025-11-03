@@ -497,20 +497,32 @@ export default function InvoiceGenerator() {
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   };
+const numberToWords = (num) => {
+  const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+  const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+  const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
 
-  const numberToWords = (num) => {
-    const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
-    const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-    const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+  if (num === 0) return 'Zero';
+  if (num < 10) return ones[num];
+  if (num < 20) return teens[num - 10];
+  if (num < 100) {
+    return (tens[Math.floor(num / 10)] + ' ' + ones[num % 10]).trim();
+  }
+  if (num < 1000) {
+    const hundredPart = ones[Math.floor(num / 100)] + ' Hundred';
+    const remainder = num % 100;
+    return remainder ? (hundredPart + ' ' + numberToWords(remainder)) : hundredPart;
+  }
+  if (num < 100000) {
+    const thousandPart = numberToWords(Math.floor(num / 1000)) + ' Thousand';
+    const remainder = num % 1000;
+    return remainder ? (thousandPart + ' ' + numberToWords(remainder)) : thousandPart;
+  }
+  const lakhPart = numberToWords(Math.floor(num / 100000)) + ' Lakh';
+  const remainder = num % 100000;
+  return remainder ? (lakhPart + ' ' + numberToWords(remainder)) : lakhPart;
+};
 
-    if (num === 0) return 'Zero';
-    if (num < 10) return ones[num];
-    if (num < 20) return teens[num - 10];
-    if (num < 100) return tens[Math.floor(num / 10)] + ' ' + ones[num % 10];
-    if (num < 1000) return ones[Math.floor(num / 100)] + ' Hundred ' + numberToWords(num % 100);
-    if (num < 100000) return numberToWords(Math.floor(num / 1000)) + ' Thousand ' + numberToWords(num % 1000);
-    return numberToWords(Math.floor(num / 100000)) + ' Lakh ' + numberToWords(num % 100000);
-  };
 
   // Don't render until invoiceData is loaded
   if (!invoiceData) {
@@ -530,6 +542,7 @@ export default function InvoiceGenerator() {
     total,
     balance,
     amountInWords: numberToWords(Math.floor(balance)) + ' Rupees Only',
+
   };
 
   const months = [
